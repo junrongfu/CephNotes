@@ -53,9 +53,6 @@ $ ceph pg {pg-id} mark_unfound_lost revert
 $ ceph pg dump_stuck inactive|unclean|stale
 ```
 
-# 3. 参数梳理
-## 3.1 参数介绍
-
 
 
 

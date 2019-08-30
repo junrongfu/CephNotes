@@ -1,6 +1,6 @@
 # 1.说明
 ## 1.1介绍
-OSD全称Object Storage Device，也就是负责响应客户端请求返回具体数据的进程。一个Ceph集群一般都有很多个OSD。
+`OSD`全称`Object Storage Device`，是负责响应客户端请求并返回具体数据的进程；一个Ceph集群一般有多个OSD；
 
 # 2. 常用操作
 ## 2.1 查看osd状态
@@ -15,9 +15,9 @@ $ ceph osd stat
 - 挂了且不再运行(down)
 
 **说明：** 
-- 如果OSD活着，它也可以是 in或者 out 集群。如果它以前是 in 但最近 out 了， Ceph 会把其归置组迁移到其他OSD 。
-- 如果OSD out 了， CRUSH 就不会再分配归置组给它。如果它挂了（ down ）其状态也应该是 out 。
-- 如果OSD 状态为 down 且 in ，必定有问题，而且集群处于非健康状态。
+- 如果OSD活着，它也可以是 in或者 out 集群；如果它以前是 in 但最近 out 了， Ceph 会把其归置组迁移到其他OSD ；
+- 如果OSD out 了， CRUSH 就不会再分配归置组给它；如果它挂了（ down ）其状态也应该是 out ；
+- 如果OSD 状态为 down 且 in ，必定有问题，而且集群处于非健康状态；
 
 
 ## 2.2 查看osd映射信息
@@ -264,9 +264,6 @@ $ ceph osd unset noout
 ```
 ceph-disk list
 ```
-
-# 3. 参数梳理
-## 3.1 参数介绍
 
 
 
