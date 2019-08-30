@@ -10,6 +10,9 @@ PG数量的预估
  
 # ceph osd pool create test_pool 512 512 replicated
 pool 'test_pool' created
+
+# 默认初始化RBD pool
+# rbd pool init <pool-name>
 ```
 ## 1.2  删除存储池
 ```
@@ -107,7 +110,6 @@ RBD支持的特性，及具体BIT值的计算如下
 # rbd showmapped
 id pool image snap device    
 0  test test  -    /dev/rbd0 
-1  test test  -    /dev/rbd1
 
 # rbd unmap {image-name}
  
