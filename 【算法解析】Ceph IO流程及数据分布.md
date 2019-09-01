@@ -5,13 +5,13 @@
 ![ceph_io_2.png](https://upload-images.jianshu.io/upload_images/2099201-2c47144a5118bcf0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 **步骤：**
- 1. client 创建cluster handler。
- 2. client 读取配置文件。
- 3. client 连接上monitor，获取集群map信息。
- 4. client 读写io 根据crshmap 算法请求对应的主osd数据节点。
- 5. 主osd数据节点同时写入另外两个副本节点数据。
- 6. 等待主节点以及另外两个副本节点写完数据状态。
- 7. 主节点及副本节点写入状态都成功后，返回给client，io写入完成。
+ 1. client 创建cluster handler；
+ 2. client 读取配置文件；
+ 3. client 连接上monitor，获取集群map信息；
+ 4. client 读写io 根据crshmap 算法请求对应的主osd数据节点；
+ 5. 主osd数据节点同时写入另外两个副本节点数据；
+ 6. 等待主节点以及另外两个副本节点写完数据状态；
+ 7. 主节点及副本节点写入状态都成功后，返回给client，io写入完成；
 
 
 ## 1.2 新主IO流程图
@@ -37,11 +37,11 @@
    a. ino (File的元数据，File的唯一id)。
    b. ono(File切分产生的某个object的序号，默认以4M切分一个块大小)。
    c. oid(object id: ino + ono)。
- 
+
 2. Object是RADOS需要的对象。Ceph指定一个静态hash函数计算oid的值，将oid映射成一个近似均匀分布的伪随机值，然后和mask按位相与，得到pgid。Object->PG映射：
   a. hash(oid) & mask-> pgid 。
   b. mask = PG总数m(m为2的整数幂)-1 。
- 
+
 3. PG(Placement Group),用途是对object的存储进行组织和位置映射, (类似于redis cluster里面的slot的概念) 一个PG里面会有很多object。采用CRUSH算法，将pgid代入其中，然后得到一组OSD。PG->OSD映射： 
   a. CRUSH(pgid)->(osd1,osd2,osd3) 。
 
