@@ -1,3 +1,14 @@
+### 概览
+
+- `Ceph`的底层核心是`RADOS（Reliable, Autonomic Distributed Object Store）`,其本质是一个对象存储；
+- `RADOS`由两个组件组成：`OSD`和`Monitor`；`OSD`主要提供存储资源，每一个`disk`、`SSD`、`RAID group`或者一个分区都可以成为一个`OSD`，而每个`OSD`还将负责向该对象的复杂节点分发和恢复；`Monitor`维护`Ceph`集群并监控`Ceph`集群的全局状态，提供一致性的决策；
+- `RADOS`分发策略依赖于名为`CRUSH（Controlled Replication Under Scalable Hashing）`的算法（基于可扩展哈希算法的可控复制）；
+- 通过CRUSH算法动态计算元数据，去中心化，不需要统一管理一个集中式的元数据表；
+- CRUSH 还有一个独特的基础设施感知能力，它能了解基础设施中不同组件之间的关系，从最初的系统磁盘、池、节点、机架、电掘插板、交换机到现在的数据中心，以及数据中心房间等 这些都是任何基础设施中的故障区域，CRUSH 会以多副本的方式保存数据，以保证在故障区域中有些组件故障的情况下数据依旧可用；
+- 一个对象通常包含绑定在一起的数据和元数据，并且用一个全局唯一的标识符；
+- CRUSH查找：元数据计算的负载是分布式的并且只在需要时执行，元数据计算过程也称为CRUSH查找；客户端使用自己的系统资源来执行CRUSH查找。从而取消中心查找；
+- 对于Ceph集群的一次读写操作，客户端首先请求Ceph的monitor并获取一个cluster map副本；cluster map帮助客户端获取Ceph集群的状态和配置信息；使用对象和池名/ID将数据转换为对象；然后将对象和PG(Placement Groups)数一起经过散列来生成其在Ceph池中最终存放的一个PG；然后前面计算好的PG经过CRUSH查找来确定存储或获取数据所需的主OSD位置；计算完准确的OSD ID之后，客户端直接联系这个OSD来存储数据；所有这些计算操作都是由客户端来执行，因此它不会影响集群的性能；一旦数据写入主OSD，主OSD所在节点将执行CRUSH查找操作并计算辅助归置组和OSD的位置来实现数据复制，进而实现高可用性；
+
 ### Ceph的核心组件
 
 - [ ] Monitor：一个Ceph集群需要多个Monitor组成的小集群，它们通过Paxos同步数据，用来保存OSD的元数据；Ceph monitor(MON)组件通过一系列的map来跟踪整个集群的健康状态，包括OSD、MON、PG和CRUSH等组件的map；所有的集群节点都向monitor节点报告状态，并分享每一个状态变化的信息。一个monitor为每一个组件维护一个独立的map；monitor不存储实际数据；
