@@ -75,7 +75,14 @@ priority=1
 # rbd map foo --pool rbd --name client.admin [-m {mon-IP}] [-k /path/to/ceph.client.admin.keyring]
 ```
 
+- launch the toolbox.
+
+```shell
+# kubectl apply -f toolbox.yaml
+```
+
 ### ISSUE
 
 1. launch osd needs more memory, at least 2048Mi，must reconfig the `cluster.yaml`.
 2. recreate the rook cluster, first, deletes the directory of `/var/lib/rook`.
+3. there are 3 nodes in my cluster, and 10 osds per nodes, but after create a rbd pool, the default pg and pgs are 8, it's too small, I adjust them to 128.
