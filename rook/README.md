@@ -81,8 +81,38 @@ priority=1
 # kubectl apply -f toolbox.yaml
 ```
 
+- create object store and store user
+
+```shell
+# kubectl apply -f object.yaml
+# kubectl apply -f object-user.yaml
+```
+
+- got the admin keyring, and dashboard user password, and s3 store user info
+
+```shell
+# kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o yaml | grep "password:" | awk '{print $2}' | base64 --decode
+```
+
+### cluster cleanup
+
+```shell
+# delete the data on hosts
+#!/usr/bin/env bash
+DISK="/dev/sdb"
+# Zap the disk to a fresh, usable state (zap-all is important, b/c MBR has to be clean)
+# You will have to run this step for all disks.
+sgdisk --zap-all $DISK
+
+# These steps only have to be run once on each node
+# If rook sets up osds using ceph-volume, teardown leaves some devices mapped that lock the disks.
+ls /dev/mapper/ceph-* | xargs -I% -- dmsetup remove %
+# ceph-volume setup can leave ceph-<UUID> directories in /dev (unnecessary clutter)
+rm -rf /dev/ceph-*
+```
+
 ### ISSUE
 
 1. launch osd needs more memory, at least 2048Mi，must reconfig the `cluster.yaml`.
 2. recreate the rook cluster, first, deletes the directory of `/var/lib/rook`.
-3. there are 3 nodes in my cluster, and 10 osds per nodes, but after create a rbd pool, the default pg and pgs are 8, it's too small, I adjust them to 128.
+3. there are 3 nodes in my cluster, and 10 osds per nodes, but after create a rbd pool, the default pg and pgs are 8, it's too small, I adjust them to 512(2 steps, fitsrt to 256, next to 512).
