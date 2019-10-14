@@ -141,6 +141,7 @@ Ceph 生态系统架构可以划分为四部分：
 ![image.png](https://upload-images.jianshu.io/upload_images/2099201-73fd71fa40dcf13b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 **说明：**
+
  - CephFS 是与 POSIX 标准兼容的文件系统
  - 文件目录和其他元数据存储在RADOS中
  - MDS缓存元信息和文件目录信息
@@ -155,26 +156,26 @@ Ceph 生态系统架构可以划分为四部分：
    - ceph-fuse ... 
    - mount -t ceph ... 
  - 可扩展性 
-    - client读写osd 
+    - client读写osd ；
  - 共享文件系统 
-    - 多个clients可以同时读写 
+    - 多个clients可以同时读写 ；
   - 高可用 
-    - MDS主备模式，Active/Standby MDSs 
+    - MDS主备模式，Active/Standby MDSs ；
  - 文件/目录Layouts 
-     - 支持配置文件/目录的Layouts使用不同的Ppool 
+     - 支持配置文件/目录的Layouts使用不同的Ppool ；
  - POSIX ACLs 
-    - CephFS kernel client默认支持
-    - CephFS FUSE client可配置支持 
+    - CephFS kernel client默认支持；
+    - CephFS FUSE client可配置支持 ；
  - NFS-Ganesha 
-   - 一个基于 NFSv3\v4\v4.1 的NFS服务器
-   - 运行在大多数 Linux 发行版的用户态空间下，同时也支持 9p.2000L 协议
-   - Ganesha通过利用libcephfs库支持CephFS FSAL(File System Abstraction Layer，文件系统抽象层)，可以将CephFS重新Export出去
+   - 一个基于 NFSv3\v4\v4.1 的NFS服务器；
+   - 运行在大多数 Linux 发行版的用户态空间下，同时也支持 9p.2000L 协议；
+   - Ganesha通过利用libcephfs库支持CephFS FSAL(File System Abstraction Layer，文件系统抽象层)，可以将CephFS重新Export出去；
  - Client Quotas 
-    - CephFS FUSE client支持配置任何目录的Quotas
+    - CephFS FUSE client支持配置任何目录的Quotas；
  - 负载均衡
-    - 动态负载均衡
-    - 静态负载均衡
-    - hash负载均衡
+    - 动态负载均衡；
+    - 静态负载均衡；
+    - hash负载均衡；
 
 # 5. MDS介绍
 ## 5.1 单活MDS介绍
@@ -213,7 +214,7 @@ Ceph 生态系统架构可以划分为四部分：
  - 客户端搜索遍历查找文件（不可控）；
  - session的 inode太大导致mds负载过高；
  - 日志级别开的太大，从而导致mds负载高；
- - mds锁问题，导致客户端夯住；
+ - mds锁问题，导致客户端hang住；
  - mds性能有限，目前是单活；
 
 ## 6.4 客户端失去连接
@@ -237,10 +238,10 @@ mds: fix false "failing to respond to cache pressure" warning
 - Client does not release its caps. So session->recalled_at in
   MDS keeps unchanged
 
-## 7.2 客户端夯住问题
+## 7.2 客户端hang住问题
 ### 7.2.1 MDS锁的问题
 #### 7.2.1.1 场景模拟
- - A用户以只读的方式打开文件，不关闭文件句柄；然后意外掉线或者掉电，B用户读写这个文件就会夯住；
+ - A用户以只读的方式打开文件，不关闭文件句柄；然后意外掉线或者掉电，B用户读写这个文件就会hang住；
 1. 读写代码
 
 ```
@@ -302,9 +303,9 @@ int main()
 **总结：**
  - 可以发现kill之后A用户是不可用的状态； 
  - 与此同时B用户也是不可用的状态，过了300s才恢复；
- - 与此同时mds日志显示，有慢查询夯住的client.22614489正好是B用户；
- - mds日志中发现，夯住都是在等待读锁(currently failed to rdlock, waiting）；
- - mds日志中发现， 夯住后过了300s 驱逐异常客户端A用户；
+ - 与此同时mds日志显示，有慢查询hang住的client.22614489正好是B用户；
+ - mds日志中发现，hang住都是在等待读锁(currently failed to rdlock, waiting）；
+ - mds日志中发现， hang住后过了300s 驱逐异常客户端A用户；
  - 有两种情况可以自动剔除客户：
     - 在活动的MDS守护程序上，如果客户端尚未通过mds_session_autoclose秒（默认为300秒）与MDS进行通信(客户端每隔20s 向mds发送心跳链接handle_client_session)，则会自动将其逐出；
     - 在MDS启动期间（包括故障转移），MDS通过称为重新连接的状态； 在此状态下，它等待所有客户端连接到新的MDS守护程序。 如果任何客户端在时间窗口（mds_reconnect_timeout，默认值为45秒）内未能这样做，那么它们将被逐出；
@@ -327,10 +328,10 @@ int main()
 ![image.png](https://upload-images.jianshu.io/upload_images/2099201-21dbf4e622b14877.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 ### 7.3.2 MDS切换循环？
-MDS守护进程至少在mds_beacon_grace中未能向监视器发送消息，而它们应该在每个mds_beacon_interval发送消息。此时Ceph监视器将自动将MDS切换为备用MDS。 如果MDS的Session Inode过多导致MDS繁忙，只从切换未能及时发送消息，就可能会出现循环切换的概率。一般建设增大mds_beacon_grace。
+MDS守护进程至少在mds_beacon_grace中未能向监视器发送消息，而它们应该在每个mds_beacon_interval发送消息；此时Ceph监视器将自动将MDS切换为备用MDS；如果MDS的Session Inode过多导致MDS繁忙，只从切换未能及时发送消息，就可能会出现循环切换的概率；一般建设增大mds_beacon_grace；
 
 mds beacon grace
-描述:	多久没收到标识消息就认为 MDS 落后了（并可能替换它）。
+描述:	多久没收到标识消息就认为 MDS 落后了（并可能替换它）；
 类型:	Float
 默认值:	15
 
@@ -353,42 +354,42 @@ can be established and the mountpoint will be ok.
 
 # 8. 总结及优化方案推荐
 
-*   A用户读数据意外掉线，B用户的操作都会抗住等待A用户恢复，如果恢复不了，直到一定时间会自动剔除A用户。(锁的粒度很大，坑很大)
-*   调节mds session autoclose(默认300s)，尽快剔除有问题的客户端。
+*   A用户读数据意外掉线，B用户的操作都会抗住等待A用户恢复，如果恢复不了，直到一定时间会自动剔除A用户(锁的粒度很大，坑很大)；
+*   调节mds session autoclose(默认300s)，尽快剔除有问题的客户端；
     - On an active MDS daemon, if a client has not communicated with the MDS for over session_autoclose (a file system variable) seconds (300 seconds by default), then it will be evicted automatically
 * 有两种情况可以自动驱逐客户：
-    - 在活动的MDS守护程序上，如果客户端尚未通过mds_session_autoclose秒（默认为300秒）与MDS进行通信(客户端每隔20s 向mds发送心跳链接handle_client_session)，则会自动将其逐出。
-    - 在MDS启动期间（包括故障转移），MDS通过称为重新连接的状态。 在此状态下，它等待所有客户端连接到新的MDS守护程序。 如果任何客户端在时间窗口（mds_reconnect_timeout，默认值为45秒）内未能这样做，那么它们将被逐出。
-*   如果mds负载过高或者内存过大，限制MDS内存，减少资源消耗。mds limiting cache by memory [https://github.com/ceph/ceph/pull/17711](https://github.com/ceph/ceph/pull/17711)
+    - 在活动的MDS守护程序上，如果客户端尚未通过mds_session_autoclose秒（默认为300秒）与MDS进行通信(客户端每隔20s 向mds发送心跳链接handle_client_session)，则会自动将其逐出；
+    - 在MDS启动期间（包括故障转移），MDS通过称为重新连接的状态；在此状态下，它等待所有客户端连接到新的MDS守护程序； 如果任何客户端在时间窗口（mds_reconnect_timeout，默认值为45秒）内未能这样做，那么它们将被逐出；
+*   如果mds负载过高或者内存过大，限制MDS内存，减少资源消耗；mds limiting cache by memory [https://github.com/ceph/ceph/pull/17711](https://github.com/ceph/ceph/pull/17711)
 *   如果mds负载过高或者内存过大，官方提供的mds 主动删除cache，补丁在review过程中个，目标版本是ceph-14.0.0 [https://github.com/ceph/ceph/pull/21566](https://github.com/ceph/ceph/pull/21566)
-*   mds在主处理流程中使用了单线程，这导致了其单个MDS的性能受到了限制，最大单个MDS可达8k ops/s，CPU利用率达到的 140%左右。
-*   ceph-fuse客户端Qos限速，避免IO一瞬间涌进来导致mds抖动(从客户端限制IOPS,避免资源争抢，对系统资源带来冲击)
-*   剔除用户可以释放inode数量，但是不能减少内存，如果此时切换主从可以加快切换速度。
-*   多活MDS 在12 Luminous 官方宣称可以上生产环境。
-*   当某个文件系统客户端不响应或者有其它异常行为时，此时会对客户端进行驱逐，为了防止异常客户端导致数据不一致。
+*   mds在主处理流程中使用了单线程，这导致了其单个MDS的性能受到了限制，最大单个MDS可达8k ops/s，CPU利用率达到的 140%左右；
+*   ceph-fuse客户端Qos限速，避免IO一瞬间涌进来导致mds抖动(从客户端限制IOPS,避免资源争抢，对系统资源带来冲击)；
+*   剔除用户可以释放inode数量，但是不能减少内存，如果此时切换主从可以加快切换速度；
+*   多活MDS 在12 Luminous 官方宣称可以上生产环境；
+*   当某个文件系统客户端不响应或者有其它异常行为时，此时会对客户端进行驱逐，为了防止异常客户端导致数据不一致；
 
 # 9. 多活MDS
 ## 9.1 简介
 也叫： multi-mds 、 active-active MDS
-每个 CephFS 文件系统默认情况下都只配置一个活跃 MDS 守护进程。在大型系统中，为了扩展元数据性能你可以配置多个活跃的 MDS 守护进程，它们会共同承担元数据负载。
+每个 CephFS 文件系统默认情况下都只配置一个活跃 MDS 守护进程；在大型系统中，为了扩展元数据性能你可以配置多个活跃的 MDS 守护进程，它们会共同承担元数据负载；
 
-CephFS 在Luminous版本中多元数据服务器（Multi-MDS）的功能和目录分片（dirfragment）的功能宣称已经可以在生产环境中使用。
+CephFS 在Luminous版本中多元数据服务器（Multi-MDS）的功能和目录分片（dirfragment）的功能宣称已经可以在生产环境中使用；
 
 ![image.png](https://upload-images.jianshu.io/upload_images/2099201-a058e45972c30798.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 ## 9.2 多活MDS优势
- - 当元数据默认的单个 MDS 成为瓶颈时，配置多个活跃的 MDS 守护进程，提升集群性能。
- - 多个活跃的 MDS 有利于性能提升。
- - 多个活跃的MDS 可以实现MDS负载均衡。
- - 多个活跃的MDS 可以实现多租户资源隔离。
+ - 当元数据默认的单个 MDS 成为瓶颈时，配置多个活跃的 MDS 守护进程，提升集群性能；
+ - 多个活跃的 MDS 有利于性能提升；
+ - 多个活跃的MDS 可以实现MDS负载均衡；
+ - 多个活跃的MDS 可以实现多租户资源隔离；
 
 ## 9.3 多活MDS特点
- - 它能够将文件系统树分割成子树。
- - 每个子树可以交给特定的MDS进行权威管理。
- - 从而达到了随着元数据服务器数量的增加，集群性能线性地扩展。
- - 每个子树都是基于元数据在给定目录树中的热动态创建的。
- - 一旦创建了子树，它的元数据就被迁移到一个未加载的MDS。
- - 后续客户端对先前授权的MDS的请求被转发。
+ - 它能够将文件系统树分割成子树；
+ - 每个子树可以交给特定的MDS进行权威管理；
+ - 从而达到了随着元数据服务器数量的增加，集群性能线性地扩展；
+ - 每个子树都是基于元数据在给定目录树中的热动态创建的；
+ - 一旦创建了子树，它的元数据就被迁移到一个未加载的MDS；
+ - 后续客户端对先前授权的MDS的请求被转发；
 
 ![image.png](https://upload-images.jianshu.io/upload_images/2099201-9a39bbe653916339.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
@@ -400,37 +401,37 @@ CephFS 在Luminous版本中多元数据服务器（Multi-MDS）的功能和目�
 为了实现文件系统数据和元数据的负载均衡，业界一般有几种分区方法：
  - 静态子树分区
    - 即通过手工分区方式，将数据直接分配到某个服务节点上，出现负载 
-   不均衡时，再由管理员手动重新进行分配。
-   - 这种方式适应于数据位置固定的场景，不适合动态扩展、或者有可能出现异常的场景。
+   不均衡时，再由管理员手动重新进行分配；
+   - 这种方式适应于数据位置固定的场景，不适合动态扩展、或者有可能出现异常的场景；
  - Hash计算分区
-   - 即通过Hash计算来分配数据存储的位置。
-   - 这种方式适合数据分布均衡、且需要应用各种异常的情况，但不太适合需要数据分布固定、环境变化频率很高的场景。
+   - 即通过Hash计算来分配数据存储的位置；
+   - 这种方式适合数据分布均衡、且需要应用各种异常的情况，但不太适合需要数据分布固定、环境变化频率很高的场景；
  - 动态子树分区
-   - 通过实时监控集群节点的负载，动态调整子树分布于不同的节点。
-   - 这种方式适合各种异常场景，能根据负载的情况，动态的调整数据分布，不过如果大量数据的迁移肯定会导致业务抖动，影响性能。
+   - 通过实时监控集群节点的负载，动态调整子树分布于不同的节点；
+   - 这种方式适合各种异常场景，能根据负载的情况，动态的调整数据分布，不过如果大量数据的迁移肯定会导致业务抖动，影响性能；
 
 ## 9.5 Subtree Pinning(static subtree partitioning)
 ![image.png](https://upload-images.jianshu.io/upload_images/2099201-3c36dd0e05e73e85.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 **说明：**
 
- - 通过pin可以把mds和目录进行绑定 。
- - 通过pin可以做到不同用户的目录访问不同的mds。
- - 可以实现多租户MDS负载均衡。
- - 可以实现多租户MDS负载资源隔离。
+ - 通过pin可以把mds和目录进行绑定 ；
+ - 通过pin可以做到不同用户的目录访问不同的mds；
+ - 可以实现多租户MDS负载均衡；
+ - 可以实现多租户MDS负载资源隔离；
 
 ## 9.6 动态负载均衡
 ### 9.6.1 介绍
-多个活动的MDSs可以迁移目录以平衡元数据负载。何时、何地以及迁移多少的策略都被硬编码到元数据平衡模块中。
+多个活动的MDSs可以迁移目录以平衡元数据负载；何时、何地以及迁移多少的策略都被硬编码到元数据平衡模块中；
 
-Mantle是一个内置在MDS中的可编程元数据均衡器。其思想是保护平衡负载(迁移、复制、碎片化)的机制，但使用Lua定制化平衡策略。
+Mantle是一个内置在MDS中的可编程元数据均衡器；其思想是保护平衡负载(迁移、复制、碎片化)的机制，但使用Lua定制化平衡策略；
 
-大多数实现都在MDBalancer中。度量通过Lua栈传递给均衡器策略，负载列表返回给MDBalancer。这些负载是“发送到每个MDS的数量”，并直接插入MDBalancer“my_targets”向量。
+大多数实现都在MDBalancer中；度量通过Lua栈传递给均衡器策略，负载列表返回给MDBalancer；这些负载是“发送到每个MDS的数量”，并直接插入MDBalancer“my_targets”向量；
 
-暴露给Lua策略的指标与已经存储在mds_load_t中的指标相同:auth.meta_load()、all.meta_load()、req_rate、queue_length、cpu_load_avg。
+暴露给Lua策略的指标与已经存储在mds_load_t中的指标相同:auth.meta_load()、all.meta_load()、req_rate、queue_length、cpu_load_avg；
 
-它位于当前的均衡器实现旁边，并且它是通过“ceph.conf”中的字符串启用的。如果Lua策略失败(无论出于何种原因)，我们将回到原来的元数据负载均衡器。
-均衡器存储在RADOS元数据池中，MDSMap中的字符串告诉MDSs使用哪个均衡器。
+它位于当前的均衡器实现旁边，并且它是通过“ceph.conf”中的字符串启用的；如果Lua策略失败(无论出于何种原因)，我们将回到原来的元数据负载均衡器；
+均衡器存储在RADOS元数据池中，MDSMap中的字符串告诉MDSs使用哪个均衡器；
 
 This PR does not not have the following features from the Supercomputing paper:
 1.  Balancing API: all we require is that balancer written in Lua returns a `targets` table, where each index is the amount of load to send to each MDS
@@ -502,11 +503,11 @@ MDS version: didi_dss version 12.2.8 (ae699615bac534ea496ee965ac6192cb7e0e07c0) 
 ```
 
 ### 10.2.3 总结
- - 每一个 CephFS 文件系统都有自己的 max_mds 配置，它控制着会创建多少 rank 。
- - 有空闲守护进程可接管新 rank 时，文件系统 rank 的实际数量才会增加 。
- - 通过设置max_mds增加active mds。
-    - 新创建的 rank (1) 会从 creating 状态过渡到 active 状态。
-    - 创建后有两个active mds， 一个standby mds。
+ - 每一个 CephFS 文件系统都有自己的 max_mds 配置，它控制着会创建多少 rank ；
+ - 有空闲守护进程可接管新 rank 时，文件系统 rank 的实际数量才会增加 ；
+ - 通过设置max_mds增加active mds；
+    - 新创建的 rank (1) 会从 creating 状态过渡到 active 状态；
+    - 创建后有两个active mds， 一个standby mds；
 
 ## 10.3 多活MDS压测
 ### 10.3.1 用户挂载目录
@@ -548,9 +549,9 @@ MDS version: didi_dss version 12.2.8 (ae699615bac534ea496ee965ac6192cb7e0e07c0) 
 ```
 
 ### 10.3.4 总结
- - fuse模式 mds性能 5624 ops/s。
- - 虽然有两个active mds, 但是目前请求都会落在rank0上面。
- - 默认多个active mds负载并没有均衡。
+ - fuse模式 mds性能 5624 ops/s；
+ - 虽然有两个active mds, 但是目前请求都会落在rank0上面；
+ - 默认多个active mds负载并没有均衡；
 
 ## 10.4 多活MDS-动态负载均衡
 ### 10.4.1 Put the balancer into RADOS
@@ -593,9 +594,9 @@ MDS version: didi_dss version 12.2.8 (ae699615bac534ea496ee965ac6192cb7e0e07c0) 
 ```
 
 ### 10.4.4 总结
- - 通过lua可以灵活控制负载均衡策略。
- - 测试结果发现，负载均衡效果并不好。
- - 负载均衡目前来看坑比较深，目前不推荐使用。
+ - 通过lua可以灵活控制负载均衡策略；
+ - 测试结果发现，负载均衡效果并不好；
+ - **负载均衡目前来看坑比较深，目前不推荐使用**；
 
 ## 10.5 多活MDS-静态分区(多租户隔离)
 ### 10.5.1 根据目录绑定不同的mds
@@ -640,11 +641,11 @@ MDS version: didi_dss version 12.2.8 (ae699615bac534ea496ee965ac6192cb7e0e07c0) 
 ```
 
 ### 10.5.4 结论
- - 通过ceph.dir.pin把目录绑定到不同的mds上，从而实现多租户隔离。
- - 两个客户端各自写入自己所在目录持续压测20分钟。
- - 两个客户端压测结果分别是：3035 ops/s，3039 ops/s。
- - 两个客户端cpu消耗非常接近。
- - 两个active mds 目前都有请求负载，实现了多个客户端的负载均衡。
+ - 通过ceph.dir.pin把目录绑定到不同的mds上，从而实现多租户隔离；
+ - 两个客户端各自写入自己所在目录持续压测20分钟；
+ - 两个客户端压测结果分别是：3035 ops/s，3039 ops/s；
+ - 两个客户端cpu消耗非常接近；
+ - 两个active mds 目前都有请求负载，实现了多个客户端的负载均衡；
 
 ## 10.6 多活MDS-主备模式
 ### 10.6.1 查看mds状态
@@ -732,49 +733,48 @@ MDS version: didi_dss version 12.2.8 (ae699615bac534ea496ee965ac6192cb7e0e07c0) 
 ```
 
 ### 10.6.5 总结
- - 多active mds，如果主mds挂掉， 备mds会接替主的位置。
- - 新的主会继承静态分区关系。
+ - 多active mds，如果主mds挂掉， 备mds会接替主的位置；
+ - 新的主会继承静态分区关系；
 
 # 11. 多活负载均衡-总结
 ## 11.1 测试报告
 |  工具 | 集群模式 | 客户端数量(压测端) |  性能 |
 |:---:|:---:|:---:|:---:|
 | filebench |  1MDS |  2个客户端 | 5624 ops/s |
-| filebench |  2MDS |  2个客户端 | 客户端1：3035 ops/s<br/>客户端2：3039 ops/s
-
+| filebench | 2MDS | 2个客户端 | 客户端1：3035 ops/s <br>客户端2：3039 ops/s |
 ## 11.2 结论
  - 单活mds 
-      - 性能是 5624 ops/s左右。
-      - 通过主备模式可以实现高可用。
+      - 性能是 5624 ops/s左右；
+      - 通过主备模式可以实现高可用；
  - 多活mds 默认
-      - 用户的请求都只会在 rank 0 上的mds。
+      - 用户的请求都只会在 rank 0 上的mds；
  - 多活mds 动态负载均衡   (目前12.2版本不推荐使用)
-      - 测试效果多个mds负载不均衡。
-      - 可以通过lua灵活调节负载均衡策略。
-      - 资源来回迁移等各种问题，目前感觉坑还是很大。
-  - 多活mds 静态分区  （推荐使用，外界社区也有用到生产环境)
-      - 可以实现不同目录绑定到不同的mds上。
-      - 从而实现多租户mds资源隔离。
-      - 随着mds增加可以线性增加集群性能。
-      - 两个客户端压测结果分别是：3035 ops/s，3039 ops/s。
+      - 测试效果多个mds负载不均衡；
+      - 可以通过lua灵活调节负载均衡策略；
+      - 资源来回迁移等各种问题，目前感觉坑还是很大；
+  - 多活mds 静态分区（推荐使用，外界社区也有用到生产环境)
+      - 可以实现不同目录绑定到不同的mds上；
+      - 从而实现多租户mds资源隔离；
+      - 随着mds增加可以线性增加集群性能；
+      - 两个客户端压测结果分别是：3035 ops/s，3039 ops/s；
  - 多活mds 主备模式
-      - 其中一个active mds挂掉 stanbdy会立马接替。
-      - 接替过来的新主active mds 也会继承静态分区的关系。
+      - 其中一个active mds挂掉 stanbdy会立马接替；
+      - 接替过来的新主active mds 也会继承静态分区的关系；
 
 # 12. MDS状态说明
 ## 12.1 MDS主从切换流程图
 ![image.png](https://upload-images.jianshu.io/upload_images/2099201-fd69f342b19fcdf4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 **说明：**
- 1. 用户手动发起主从切换fail。
- 2. active mds手动信号，发起respawn重启。
- 3. standby mds收到信号，经过分布式算法推选为新主active mds。
- 4. 新主active mds 从up:boot状态，变成up:replay状态。日志恢复阶段，他将日志内容读入内存后，在内存中进行回放操作。
- 5. 新主active mds 从up:replay状态，变成up:reconnect状态。恢复的mds需要与之前的客户端重新建立连接，并且需要查询之前客户端发布的文件句柄，重新在mds的缓存中创建一致性功能和锁的状态。
- 6. 新主active mds从up:reconnect状态，变成up:rejoin状态。把客户端的inode加载到mds cache。(耗时最多的地方)
- 7. 新主active mds从up:rejoin状态，变成up:active状态。mds状态变成正常可用的状态。
- 8. recovery_done 迁移完毕。
- 9. active_start 正常可用状态启动，mdcache加载相应的信息。
+ 1. 用户手动发起主从切换fail；
+ 2. active mds手动信号，发起respawn重启；
+ 3. standby mds收到信号，经过分布式算法推选为新主active mds；
+ 4. 新主active mds 从up:boot状态，变成up:replay状态；日志恢复阶段，他将日志内容读入内存后，在内存中进行回放操作；
+ 5. 新主active mds 从up:replay状态，变成up:reconnect状态；恢复的mds需要与之前的客户端重新建立连接，并且需要查询之前客户端发布的文件句柄，重新在mds的缓存中创建一致性功能和锁的状态；
+ 6. 新主active mds从up:reconnect状态，变成up:rejoin状态；把客户端的inode加载到mds cache；(耗时最多的地方)
+ 7. 新主active mds从up:rejoin状态，变成up:active状态；mds状态变成正常可用的状态；
+ 8. recovery_done 迁移完毕；
+ 9. active_start 正常可用状态启动，mdcache加载相应的信息；
 
 ## 12.2 MDS状态
 | 状态 | 说明 |
@@ -801,16 +801,16 @@ This state diagram shows the possible state transitions for the MDS/rank. The le
 
 ### [Color](https://github.com/ceph/ceph/blob/master/doc/cephfs/mds-states.rst#color)
 
-*   绿色: MDS是活跃的。
-*   橙色: MDS处于过渡临时状态，试图变得活跃。
-*   红色:  MDS指示一个状态，该状态导致被标记为失败。
-*   紫色: MDS和rank为停止。
-*   红色: MDS指示一个状态，该状态导致被标记为损坏。
+*   绿色: MDS是活跃的；
+*   橙色: MDS处于过渡临时状态，试图变得活跃；
+*   红色:  MDS指示一个状态，该状态导致被标记为失败；
+*   紫色: MDS和rank为停止；
+*   红色: MDS指示一个状态，该状态导致被标记为损坏；
 
 ### [Shape](https://github.com/ceph/ceph/blob/master/doc/cephfs/mds-states.rst#shape)
 
-*   圈：MDS保持这种状态。
-*   六边形：没有MDS保持这个状态。
+*   圈：MDS保持这种状态；
+*   六边形：没有MDS保持这个状态；
 
 ### [Lines](https://github.com/ceph/ceph/blob/master/doc/cephfs/mds-states.rst#lines)
 
