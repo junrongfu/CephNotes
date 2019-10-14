@@ -6,7 +6,7 @@
 - Ceph 用户必须具有执行权限才能够使用 Ceph 的管理命令；
 
 # 二、 授权能力
-Ceph 用 “能力”（ capabilities, caps ）这个术语来描述给认证用户的授权，这样才能使用 Mon、 OSD 和 MDS 的功能；
+Ceph 用 “能力”（ capabilities, caps ）这个术语来描述给认证用户的授权，这样才能使用 Mon、OSD 和 MDS 的功能；
 
 能力也用于限制对某一存储池内的数据或某个命名空间的访问；
 
@@ -60,8 +60,6 @@ profile bootstrap-osd
 profile bootstrap-mds
 描述: 授权用户自举引导一个 MDS；授予例如 ceph-deploy 的部署工具，这样它们在自举引导 MDS 时就有权限增加密钥了；
 ```
-
-
 
 # 三、管理用户
 用户管理功能可以让 Ceph 存储集群的管理员有能力去创建、更新和删除集群的普通用户；
