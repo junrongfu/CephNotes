@@ -89,6 +89,11 @@ image uses unsupported features: 0x40
 yum install  kmod-nbd
 yum  install rbd-nbd
 sudo rbd-nbd map test_pool/test_image
+
+# 若有如下报错 missing required protocol features missing 400000000000000，则表明当前内核缺少ceph当前版本所需特性，可做如下处理（正式环境中不建议如此，最好在搭建集群前升级内核）：
+ceph osd crush show-tunables
+ceph osd crush tunables hammer
+ceph osd crush reweight-all
 ```
 
 ## RBD特性解析
