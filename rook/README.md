@@ -116,3 +116,20 @@ rm -rf /dev/ceph-*
 1. launch osd needs more memory, at least 2048Mi，must reconfig the `cluster.yaml`.
 2. recreate the rook cluster, first, deletes the directory of `/var/lib/rook`.
 3. there are 3 nodes in my cluster, and 10 osds per nodes, but after create a rbd pool, the default pg and pgs are 8, it's too small, I adjust them to 512(2 steps, fitsrt to 256, next to 512).
+
+```shell
+# ceph osd pool get $POOL pg_num
+# ceph osd pool get $POOL pgp_num
+
+# ceph osd pool set $POOL pg_num 256
+# ceph osd pool set $POOL pgp_num 256
+```
+
+4. in our cluster, OS CentOS 7.3, kernel version 4.4, and ceph version minic, there is a error occurs when i map the rbd image, it's "missing required protocol features missing 400000000000000". and run the below command to resolve it. but it's not recommended in product env, and must upgrade kernel.
+
+```shell
+ceph osd crush show-tunables
+ceph osd crush tunables hammer
+ceph osd crush reweight-all
+```
+
