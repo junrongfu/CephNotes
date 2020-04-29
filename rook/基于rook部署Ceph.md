@@ -1,8 +1,12 @@
+> 参照[官方文档](https://rook.github.io/docs/rook/v1.2/)，并做了相关修改；
+>
+> 所采用版本为`Rook version v1.2`；
+
 ### Prerequisites
 
 #### 前提
 
-> 要求Kubernetes版本V1.11+
+> Kubernetes版本V1.11+
 
 > modprobe rbd
 
@@ -203,18 +207,30 @@ kubectl create -f cluster.yaml
 kubectl create -f toolbox.yaml
 ```
 
+#### 创建dashboard
+
+```shell
+# 按需求选择
+kubectl create -f [dashboard-external-http.yaml | dashboard-external-https.yaml | dashboard-ingress-https.yaml | dashboard-loadbalancer.yaml]
+```
+
 #### 创建块存储
 
 *Kubernetes使用*
 
 ```shell
+# 根据需求修改pool name、RBD image format、RBD image features等
 kubectl create -f csi/rbd/storageclass.yaml
+# 创建pvc
+kubectl create -f csi/rbd/pvc.yaml
 ```
 
 *非Kubernetes使用*
 
 ```shell
+# 根据需求修改pool name，pg、pgp可后续通过toolbox手动调整
 kubectl create -f pool.yaml
+# img通过toolbox手动创建
 ```
 
 #### 创建文件系统
@@ -222,16 +238,46 @@ kubectl create -f pool.yaml
 *Kubernetes使用*
 
 ```shell
+# 根据需求修改fs name、调度亲和及mds资源分配
+kubectl create -f filesystem.yaml
 kubectl create -f csi/cephfs/storageclass.yaml
+kubectl create -f csi/cephfs/pvc.yaml
 ```
 
 *非Kubernetes使用*
 
 ```shell
+# 根据需求修改fs name、调度亲和及mds资源分配
 kubectl create -f filesystem.yaml
 ```
 
-### 清理集群
+### Cleaning up a Cluster
+
+*Delete the Block and File artifacts*
+
+```shell
+kubectl delete -f ../wordpress.yaml
+kubectl delete -f ../mysql.yaml
+kubectl delete -n rook-ceph cephblockpool replicapool
+kubectl delete storageclass rook-ceph-block
+kubectl delete -f csi/cephfs/kube-registry.yaml
+kubectl delete storageclass csi-cephfs
+```
+
+*Delete the CephCluster CRD*
+
+```shell
+kubectl -n rook-ceph delete cephcluster rook-ceph
+```
+
+*Delete the Operator and related Resources*
+
+```shell
+kubectl delete -f operator.yaml
+kubectl delete -f common.yaml
+```
+
+*Delete the data on hosts*
 
 ```shell
 #!/usr/bin/env bash
@@ -247,3 +293,8 @@ ls /dev/mapper/ceph-* | xargs -I% -- dmsetup remove %
 rm -rf /dev/ceph-*
 ```
 
+*clean up `dataDirHostPath`*
+
+```shell
+rm -rf /var/lib/rook
+```
