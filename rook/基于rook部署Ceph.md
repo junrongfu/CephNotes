@@ -8,11 +8,26 @@
 
 > Kubernetes版本V1.11+
 
+> ```shell
 > modprobe rbd
+> ```
 
-> 新版本以ceph-volume为存储介质管理工具，基于lvm实现管理，替换老的工具ceph-disk；
->
+> ```shell
+> # 新版本以ceph-volume为存储介质管理工具，基于lvm实现管理，替换老的工具ceph-disk；
 > yum install -y lvm2
+> ```
+
+> 参数调整
+>
+> ```shell
+> # pid max
+> sysctl -w kernel.pid_max=4194303
+> # 通过数据预读并且记载到随机访问内存方式提高磁盘读操作
+> echo "8192" > /sys/block/${盘符}/queue/read_ahead_kb
+> # I/O Scheduler
+> echo "deadline" > /sys/block/${普通盘符}/queue/scheduler
+> echo "noop" > /sys/block/${ssd盘符}/queue/scheduler
+> ```
 
 #### 安装包
 
@@ -188,6 +203,8 @@ spec:
     manageMachineDisruptionBudgets: false
     machineDisruptionBudgetNamespace: openshift-machine-api
 ```
+
+> 注意：资源配置参照https://docs.ceph.com/docs/master/start/hardware-recommendations/
 
 #### 执行安装
 
