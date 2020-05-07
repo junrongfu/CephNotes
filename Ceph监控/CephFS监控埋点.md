@@ -133,21 +133,21 @@ perf dump throttle-*|val|当前可用的值||
 # 2. status
 ceph daemon /var/run/ceph/ceph-client.admin.asok status
 
-监控类型 | 监控项 |  说明 | 级别 |
+|监控类型 | 监控项 |  说明 | 级别 |
 |---|---|---|---|
-|status | osd_epoch_barrier |||	 
-| | osd_epoch | osd epoch编号 ||	 
-| | mds_epoch | mds epoch编号 ||	 
-| | inode_count | 文件句柄数量 ||	
+|status | osd_epoch_barrier |||
+| | osd_epoch | osd epoch编号 ||
+| | mds_epoch | mds epoch编号 ||
+| | inode_count | 文件句柄数量 ||
 | | addr_str | 客户端地址 ||
-| | inst_str | 客户端inst信息 || 	
-| | id | 编号 || 		
-| | dentry_pinned_count | 文件夹数量 || 	
-| | dentry_count | 所有文件数量(包含文件夹) || 	
-| | metadata.ceph_sha1 | ceph sha1|| 	
-| | metadata.ceph_version | ceph版本号|| 	
-| | metadata.entity_id | 账号id信息|| 	
-| | metadata.hostname | 机器名|| 	
-| | metadata.mount_point | 挂载目录|| 
-| | metadata.pid| 进程pid|| 
-| | metadata. root | 挂载父节点|| 
+| | inst_str | 客户端inst信息 ||
+| | id | 编号 ||
+| | dentry_pinned_count | 文件夹数量 ||
+| | dentry_count | 所有文件数量(包含文件夹) ||
+| | metadata.ceph_sha1 | ceph sha1||
+| | metadata.ceph_version | ceph版本号||
+| | metadata.entity_id | 账号id信息||
+| | metadata.hostname | 机器名||
+| | metadata.mount_point | 挂载目录||
+| | metadata.pid| 进程pid||
+| | metadata. root | 挂载父节点||
