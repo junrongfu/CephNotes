@@ -249,7 +249,7 @@ pool 'cephfs_data' created
 ```
 #ceph osd pool create cephfs_metadata <pg_num>
  
-$ ceph osd pool create cephfs_data 128
+$ ceph osd pool create cephfs_metadata 128
 pool 'cephfs_metadata' created
 ```
 
