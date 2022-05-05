@@ -113,7 +113,7 @@ ceph-deploy osd activate osdserver1:/dev/sdc1:/dev/ssd2
 1、停止需要剔除的 OSD 进程，让其他的 OSD 知道这个 OSD 不提供服务了。停止 OSD 后，状态变为 `down` 。
 ```
 ssh {osd-host}
-sudo stop ceph-osd id={osd-num}
+sudo systemctl stop ceph-osd@{osd-num}
 ```
 
 2. 将 OSD 标记为 `out` 状态，这个一步是告诉 mon，这个 OSD 已经不能服务了，需要在其他的 OSD 上进行数据的均衡和恢复了。
