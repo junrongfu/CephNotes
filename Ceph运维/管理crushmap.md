@@ -196,9 +196,10 @@ CRUSH Map 支持“ CRUSH 规则”的概念，用以确定一个存储池里数
 
 # 5. 增加/移动 OSD
 
-要增加或移动在线集群里 OSD 所对应的 CRUSH Map 条目，执行 ceph osd crush set 命令。
+要增加或移动在线集群里 OSD 所对应的 CRUSH Map 条目，执行 ceph osd crush set 命令。$weight为硬盘容量转换为T的数值
 ```
 	ceph osd crush set {id-or-name} {weight} {bucket-type}={bucket-name} [{bucket-type}={bucket-name} ...]
+	(举例：ceph osd crush add osd.$id $weight host=$hostname)
 ```
 # 6. 调整 OSD 的 CRUSH 权重
 
