@@ -28,14 +28,16 @@
 [root@ceph-81-204 ~]# lsblk |grep -B1 `ls -lrt /var/lib/ceph/osd/ceph-25 | grep block |awk -F "-" '{print $NF}'`
 sdf                                                                             └─ceph--f014814a--8721--4347--9ebd--b307bab59e0d-osd--block--a87fccf6--88bf--481e--9757--8d5b74d3ca59 253:4    0  7.3T  0 lvm
 ```
-获取磁盘SN:
+2、 获取磁盘SN:
+```
 lsblk --nodeps -no serial /dev/sda
-
+```
 根据磁盘SN获取磁盘slot位置:
+```
 /opt/MegaRAID/MegaCli/MegaCli64 -PDlist -Aall | grep -B4 $SN
+```
 
 //2、根据盘符找到服务器上对应的磁盘id，scsi-0:0:4:0标识第4号磁盘id；
-
 //```
 //[root@ceph-81-204 ~]# ll /dev/disk/by-path/ |grep sdf
 //lrwxrwxrwx 1 root root  9 7月   7 21:57 pci-0000:03:00.0-scsi-0:0:4:0 -> ../../sdf
