@@ -32,16 +32,10 @@ sdf                                                                             
 ```
 lsblk --nodeps -no serial /dev/sda
 ```
-根据磁盘SN获取磁盘slot位置:
+根据磁盘SN获取磁盘插槽slot位置:
 ```
 /opt/MegaRAID/MegaCli/MegaCli64 -PDlist -Aall | grep -B4 $SN
 ```
-
-//2、根据盘符找到服务器上对应的磁盘id，scsi-0:0:4:0标识第4号磁盘id；
-//```
-//[root@ceph-81-204 ~]# ll /dev/disk/by-path/ |grep sdf
-//lrwxrwxrwx 1 root root  9 7月   7 21:57 pci-0000:03:00.0-scsi-0:0:4:0 -> ../../sdf
-//```
 
 3、获取磁盘SN号提交磁盘更换工单[http://wos.myhexin.com/?#/process/create-ticket?processId=5](http://wos.myhexin.com/#/process/create-ticket?processId=5)
 
