@@ -30,10 +30,11 @@ sdf                                                                             
 ```
 获取磁盘SN:
 lsblk --nodeps -no serial /dev/sda
-获取磁盘slot位置:
+
+根据磁盘SN获取磁盘slot位置:
 /opt/MegaRAID/MegaCli/MegaCli64 -PDlist -Aall | grep -B4 $SN
 
-//2、根据盘符找到服务器上对应的磁盘槽位，scsi-0:0:4:0标识第4号槽位；
+//2、根据盘符找到服务器上对应的磁盘id，scsi-0:0:4:0标识第4号磁盘id；
 
 //```
 //[root@ceph-81-204 ~]# ll /dev/disk/by-path/ |grep sdf
@@ -50,7 +51,8 @@ lsblk --nodeps -no serial /dev/sda
 
 ### 删除 OSD
 
-要想缩减集群尺寸或替换硬件，可在运行时删除 OSD 。在 Ceph 里，一个 OSD 通常是一台主机上的一个 `ceph-osd` 守护进程、它运行在一个硬盘之上。如果一台主机上有多个数据盘，你得逐个删除其对应 `ceph-osd` 。通常，操作前应该检查集群容量，看是否快达到上限了，确保删除 OSD 后不会使集群达到 `near full` 比率。
+要想缩减集群尺寸或替换硬件，可在运行时删除 OSD 。在 Ceph 里，一个 OSD 通常是一台主机上的一个 `ceph-osd` 守护进程、它运行在一个硬盘之上。
+如果一台主机上有多个数据盘，你得逐个删除其对应 `ceph-osd` 。通常，操作前应该检查集群容量，看是否快达到上限了，确保删除 OSD 后不会使集群达到 `near full` 比率。
 
 **警告：** 删除 OSD 时不要让集群达到 `full ratio` 值，删除 OSD 可能导致集群达到或超过 `full ratio` 值。
 
