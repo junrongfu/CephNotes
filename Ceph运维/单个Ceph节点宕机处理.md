@@ -36,6 +36,8 @@
 
 `ceph osd in $osdNum`
 
+
+#批量恢复机器上的osd
 `ls -lrt /var/lib/ceph/osd/ceph-* | grep ceph | grep osd | grep var |awk -F "-" '{print $2}' |cut -d : -f 1 >/data/osd-id.txt `
 
 `cat /data/osd-id.txt |while read osdid;do ceph auth add osd.$osdid osd 'allow *' mon 'allow rwx' -i /var/lib/ceph/osd/ceph-$osdid/keyring;done `
