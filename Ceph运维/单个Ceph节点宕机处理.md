@@ -1,4 +1,4 @@
-# 5. 单个Ceph节点宕机处理
+![image](https://github.com/junrongfu/CephNotes/assets/34940283/5642563b-c967-42fd-84fa-2913ceea009c)# 5. 单个Ceph节点宕机处理
 
 ----------
 
@@ -35,6 +35,12 @@
 `ceph-volume lvm activate $osdNum $fsid `
 
 `ceph osd in $osdNum`
+
+`ls -lrt /var/lib/ceph/osd/ceph-* | grep ceph | grep osd | grep var |awk -F "-" '{print $2}' |cut -d : -f 1 >/data/osd-id.txt
+cat /data/osd-id.txt |while read osdid;do ceph auth add osd.$osdid osd 'allow *' mon 'allow rwx' -i /var/lib/ceph/osd/ceph-$osdid/keyring;done
+vgs | awk '{print $i}' > /data/vgid.txt
+cat /data/vgid.txt |while read vgid;do lvs -o lv_tags | grep $vgid |awk -F "=|," '{print $18,$16}' ;done > /data/osdid-fsid.txt
+cat /data/osdid-fsid.txt|while read line;do ceph-volume lvm activate $line;done`
 
 
 
