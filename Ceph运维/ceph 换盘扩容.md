@@ -124,7 +124,7 @@ ceph osd crush add-bucket $hostname host # 该命令是新增一个host级的buc
 ceph osd crush add osd.* $weight host=$hostname # 该命令是将osd加入到host中去，如果已经自动创建了这一步不需要，$weight为硬盘容量转换为T的数值
 ceph osd crush move $hostname rack=$rackname # 该命令是把整个host移动到对应的rack下面
 ```
-###可能出现得问题：
+### 可能出现得问题：
 插上盘后识别不到：
 
 使用Partprobe命令也不行
