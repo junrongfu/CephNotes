@@ -147,7 +147,7 @@ $ ceph osd pool get <poolname> crush_rule
 ceph osd pool get test_pool crush_rule
 crush_rule: replicated_rule
 
-ceph osd crush rule dump #查看规则内部
+ceph osd crush rule dump #查看规则内容
 ```
 
 ## 2.20 获取pool->pg->osd 关系
