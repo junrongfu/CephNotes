@@ -137,8 +137,9 @@ enabled application 'rbd' on pool 'rbd'
 
 ## 2.18 设置存储池crush rule
 ```
-$ ceph osd pool set <poolname> crush_ruleset <ruleset>
-ceph osd pool set ssd crush_ruleset 4
+ceph osd crush rule dump #查看crush_rule内容
+$ ceph osd pool set <poolname> crush_rule <ruleset>
+ceph osd pool set k8s-rbd-ssd0-test crush_rule replicated_rule_ssd
 ```
 
 ## 2.19 获取存储池crush rule
