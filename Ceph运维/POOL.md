@@ -12,7 +12,7 @@ $ ceph osd lspools
 
 ## 2.2 创建pool
 ```
-$ ceph osd pool create test_lihang 100  #这里的100指的是PG组
+$ ceph osd pool create test_lihang 128  #这里的128指的是PG数量，最好是2的幂次方
 pool 'test_lihang' created
 ```
 
