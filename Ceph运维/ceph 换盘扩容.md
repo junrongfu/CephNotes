@@ -78,7 +78,7 @@ ceph osd crush remove osd.{osd-num}
 4.删除 OSD 认证密钥：
 
 ```
-    ceph auth del osd.{osd-num}
+ceph auth del osd.{osd-num}
 ```
 
 5.删除 OSD 。
