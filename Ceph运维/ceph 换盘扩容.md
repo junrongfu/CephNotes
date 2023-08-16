@@ -55,7 +55,8 @@ lsblk --nodeps -no serial /dev/sda
 1、停止需要剔除的 OSD 进程，让其他的 OSD 知道这个 OSD 不提供服务了。停止 OSD 后，状态变为 `down` 。
 
 ```
-ssh {osd-host}sudo systemctl stop ceph-osd@{osd-num}
+ssh {osd-host}
+sudo systemctl stop ceph-osd@{osd-num}
 ```
 
 2.将 OSD 标记为 `out` 状态，这个一步是告诉 mon，这个 OSD 已经不能服务了，需要在其他的 OSD 上进行数据的均衡和恢复了。
@@ -69,7 +70,7 @@ ceph osd out {osd-num}
 3.删除 CRUSH Map 中的对应 OSD 条目，它就不再接收数据了。你也可以反编译 CRUSH Map、删除 device 列表条目、删除对应的 host 桶条目或删除 host 桶（如果它在 CRUSH Map 里，而且你想删除主机），重编译 CRUSH Map 并应用它。
 
 ```
-ceph osd crush remove {name}
+ceph osd crush remove osd.{osd-num}
 ```
 
 该步骤会触发数据的重新分布。等待数据重新分布结束，整个集群会恢复到 `HEALTH_OK` 状态。
@@ -83,7 +84,9 @@ ceph osd crush remove {name}
 5.删除 OSD 。
 
 ```
-ceph osd rm {osd-num}#for exampleceph osd rm 1
+ceph osd rm {osd-num}
+#for example
+ceph osd rm 1
 ```
 
 6.卸载 OSD 的挂载点。
