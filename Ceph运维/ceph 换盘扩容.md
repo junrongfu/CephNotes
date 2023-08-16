@@ -131,5 +131,6 @@ ceph osd crush move $hostname rack=$rackname # 该命令是把整个host移动�
 插上盘后识别不到：
 
 使用Partprobe命令也不行
-
+```
 使用：/opt/MegaRAID/MegaCli/MegaCli64 -PDMakeJBOD -PhysDrv[32:11] -a0   刷新后好了，其中11为槽位。
+```
