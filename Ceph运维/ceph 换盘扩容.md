@@ -34,7 +34,7 @@ lsblk --nodeps -no serial /dev/sda
 ```
 根据磁盘SN获取磁盘插槽slot位置:
 ```
-/opt/MegaRAID/MegaCli/MegaCli64 -PDlist -Aall | grep -B30 $SN | grep slot
+/opt/MegaRAID/MegaCli/MegaCli64 -PDlist -Aall | grep -B30 $SN | grep -i slot
 ```
 
 3、获取磁盘SN号提交磁盘更换工单[http://wos.myhexin.com/?#/process/create-ticket?processId=5](http://wos.myhexin.com/#/process/create-ticket?processId=5)
