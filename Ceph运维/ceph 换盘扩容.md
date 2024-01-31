@@ -52,6 +52,8 @@ lsblk --nodeps -no serial /dev/sda
 
 **警告：** 删除 OSD 时不要让集群达到 `full ratio` 值，删除 OSD 可能导致集群达到或超过 `full ratio` 值。
 
+i={osd-num};systemctl stop ceph-osd@$i && ceph osd out $i && ceph osd crush remove osd.$i && ceph auth del osd.$i && ceph osd rm $i
+
 1、停止需要剔除的 OSD 进程，让其他的 OSD 知道这个 OSD 不提供服务了。停止 OSD 后，状态变为 `down` 。
 
 ```
